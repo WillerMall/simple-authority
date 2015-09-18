@@ -3,12 +3,12 @@ package cn.webro.authorization.support;
 import java.lang.reflect.Method;
 
 /**
- * Utils
+ * MethodUtils
  * 常用工具类
  * @author TuWei
  * @date 15/8/19
  */
-public class Utils {
+public class MethodUtils {
 
     /**
      * 生成一个方法的唯一标识

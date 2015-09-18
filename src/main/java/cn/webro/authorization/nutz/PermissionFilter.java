@@ -4,7 +4,7 @@ import cn.webro.authorization.annotation.Permission;
 import cn.webro.authorization.AuthManager;
 import cn.webro.authorization.AuthValidator;
 import cn.webro.authorization.PermissionInfo;
-import cn.webro.authorization.support.Utils;
+import cn.webro.authorization.support.MethodUtils;
 import org.nutz.lang.Strings;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
@@ -39,9 +39,9 @@ public class PermissionFilter implements ActionFilter {
 
 				AuthValidator validator = authManager.getValidator();
 				if(validator != null){
-					PermissionInfo info = authManager.permissions().get(Utils.getMethodIdentity(actionMethod));
+					PermissionInfo info = authManager.permissions().get(MethodUtils.getMethodIdentity(actionMethod));
                     //校验通过
-                    if(validator.validatePermission(actionContext.getRequest(), info)){
+                    if(validator.validatePermission(authManager, info, actionContext.getRequest())){
                         return null;
 					}else{
                         //返回自定义视图

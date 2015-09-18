@@ -13,5 +13,5 @@ public abstract class AuthValidator {
      * 校验权限
      * @return
      */
-    public abstract boolean validatePermission(HttpServletRequest request, PermissionInfo permsInfo);
+    public abstract boolean validatePermission(AuthManager manager, PermissionInfo permsInfo, HttpServletRequest request);
 }

@@ -5,6 +5,7 @@ import java.lang.annotation.*;
 /**
  * Permission
  * 权限信息类
+ *
  * @author TuWei
  * @date 15/8/18
  */
@@ -29,9 +30,26 @@ public @interface Permission {
     public final static int VIEW_TYPE_JSON = 1;
 
     /**
+     * 权限Id(如果该权限有父级权限Id, 那么该权限也继承了父级权限)
+     * @return
+     */
+    int id() default 0;
+
+    /**
+     * 所属权限(父级权限)
+     */
+    int parentId() default 0;
+
+    /**
      * 权限名称
      */
-    String name();
+    String value();
+
+    /**
+     * 权限分组
+     * @return
+     */
+    String group() default "";
 
     /**
      * 权限描述
@@ -49,23 +67,13 @@ public @interface Permission {
     int viewType() default VIEW_TYPE_HTML;
 
     /**
-     * 所属类(父级栏目)
+     * 权限类型(比如 分组节点, 菜单, 按钮. ), 自己定义吧
      */
-    Class<?> parent() default Object.class;
+    int type() default 0;
 
     /**
-     * 依赖地址(如果用户没有依赖的地址的权限,那么地址的权限用户也不回拥有)
+     * 是否显示
      */
-    String depends() default "";
+    boolean display() default true;
 
-//    /**
-//     * 该权限是否为节点(只用来后台显示和分组)<br/>
-//     * rootSection<br/>
-//     * &nbsp;&nbsp;+<br/>
-//     * &nbsp;&nbsp;+<br/>
-//     * &nbsp;&nbsp;+--- subSection1<br/>
-//     * &nbsp;&nbsp;+--- subSection2<br/>
-//     * @return
-//     */
-//    boolean isNode() default false;
 }

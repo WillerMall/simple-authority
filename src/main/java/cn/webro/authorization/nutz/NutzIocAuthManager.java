@@ -4,7 +4,7 @@ import cn.webro.authorization.AuthManager;
 import cn.webro.authorization.annotation.Permission;
 import cn.webro.authorization.config.ContextConfig;
 import cn.webro.authorization.PermissionInfo;
-import cn.webro.authorization.support.Utils;
+import cn.webro.authorization.support.MethodUtils;
 import org.nutz.lang.Lang;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
@@ -38,12 +38,12 @@ public class NutzIocAuthManager extends AuthManager {
 
 
     @Override
-    public void initAuthorization(ContextConfig config) {
-        this.config = config;
+    public void initAuthorization(ContextConfig conf) {
+        this.config = conf;
         this.rootUrl = config.rootUrl();
-        this.permsInfo = new ArrayList<PermissionInfo>();
+        permsInfo = new ArrayList<PermissionInfo>();
         this.urlMapping = config.urlMapping();
-        this.allPermissions = new HashMap<String, PermissionInfo>();
+        allPermissions = new HashMap<String, PermissionInfo>();
 
         log.debug("初始化权限息配置...");
         if(validator == null){
@@ -55,25 +55,29 @@ public class NutzIocAuthManager extends AuthManager {
         log.debugf("排除过滤的Url: %s", excludeUrl);
         log.debugf("HTML 类型资源权限错误地址:%s", htmlFailureUrl);
         log.debugf("JSON 类型资源权限错误地址:%s", htmlFailureUrl);
-
+        //------------------------------------------------------//
         Map<Class<?>, PermissionInfo> permss = new HashMap<Class<?>, PermissionInfo>();
         Set<String> keySet = urlMapping.keySet();
         for(String url : keySet){
             Method m = urlMapping.get(url);
+            // 到方法所在的class
             Class<?> parentClass = m.getDeclaringClass();
+            //看看临时map里面有没有这个class
             PermissionInfo pInfo = permss.get(parentClass);
-            //如果map 里存在Class的PermissionInfo, 则不再new
+            //如果临时map 里存在Class的PermissionInfo(父级), 则不再new,否则new
             if(pInfo == null){
                 pInfo = new PermissionInfo(parentClass);
                 permss.put(parentClass, pInfo);
                 permsInfo.add(pInfo);
+                //把父级info也加到全部权限
+                allPermissions.put(pInfo.getUniqueId(), pInfo);
             }
             //不需要管理权限
             if(m.getAnnotation(Permission.class) == null){
                 continue;
             }
             //如果已经添加过该方法, 则不在添加(一个Method可能对应多个Url, 而PermissionInfo 保存了该方法的所有映射url)
-            String identity = Utils.getMethodIdentity(m);
+            String identity = MethodUtils.getMethodIdentity(m);
             if(allPermissions.get(identity) == null){
                 PermissionInfo subInfo = buildPermissionInfo(m, parentClass, rootUrl);
                 pInfo.getSubPermission().add(subInfo);
@@ -96,7 +100,7 @@ public class NutzIocAuthManager extends AuthManager {
             permission = new PermissionInfo();
             permission.setMethod(method);
             permission.setMethodName(method.getName());
-            permission.setUniqueId(Utils.getMethodIdentity(method));
+            permission.setUniqueId(MethodUtils.getMethodIdentity(method));
 
             //Class<?> parentClass = method.getDeclaringClass();
             At pAt = parentClass.getAnnotation(At.class);
@@ -108,7 +112,7 @@ public class NutzIocAuthManager extends AuthManager {
                 rootUrl = new String[]{""};
             }
 
-            String[] parentUrl = pAt.value().length >= 1 ? pAt.value() : new String[]{""};
+            String[] parentUrl = pAt == null ? new String[]{""} : (pAt.value().length >= 1 ? pAt.value() : new String[]{""});
             String[] mUrl = at.value();
             if (mUrl.length == 0) {
                 mUrl = new String[]{"/" + permission.getMethodName()};
@@ -122,8 +126,10 @@ public class NutzIocAuthManager extends AuthManager {
                     }
                 }
             }
-
-            permission.setName(perms.name());
+            permission.setIdentity(perms.id());
+            permission.setParentIdentity(perms.parentId());
+            permission.setType(perms.type());
+            permission.setName(perms.value());
             permission.setDescription(perms.desc());
             permission.setViewType(perms.viewType());
             permission.setFailureUrl(perms.failureUrl());

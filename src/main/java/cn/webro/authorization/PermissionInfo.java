@@ -13,7 +13,7 @@ import java.util.Set;
 
 /**
  * PermissionInfo
- * 方法的权限信息
+ * 方法的权限信息(对Permission注解的封装)
  *
  * @author TuWei
  * @date 15/8/19
@@ -34,15 +34,31 @@ public class PermissionInfo {
         if(clazz != null){
             Permission pPerms = clazz.getAnnotation(Permission.class);
             if(pPerms != null){
-                name = pPerms.name();
+                name = pPerms.value();
                 description = pPerms.desc();
             }else{
-                name = clazz.getName();
+                name = clazz.getSimpleName();
             }
             isNode = true;
+            uniqueId = clazz.getName();
             subPermission = new ArrayList<PermissionInfo>();
         }
     }
+
+    /**
+     * 权限标识
+     */
+    protected int identity;
+
+    /**
+     * 父级权限标识
+     */
+    protected int parentIdentity;
+
+    /**
+     * 权限分组
+     */
+    protected String group;
 
     /**
      * 权限名
@@ -58,16 +74,6 @@ public class PermissionInfo {
      * 该权限信息是一个节点, 主要用来权限归类, 无实际作用
      */
     private boolean isNode;
-
-    /**
-     * 依赖权限
-     */
-    private PermissionInfo dependency;
-
-    /**
-     * 父类权限
-     */
-    private PermissionInfo parent;
 
     /**
      * 访问方法名
@@ -100,9 +106,19 @@ public class PermissionInfo {
     private int viewType;
 
     /**
+     * 定义权限目标方法的类型(菜单? 按钮)
+     */
+    private int type;
+
+    /**
      * 方法的唯一标示
      */
     private String uniqueId;
+
+    /**
+     * 是否显示
+     */
+    private boolean display;
 
     public String getName() {
         return name;
@@ -110,17 +126,6 @@ public class PermissionInfo {
 
     public String getDescription() {
         return description;
-    }
-
-    public PermissionInfo getDependency() {
-        return dependency;
-    }
-
-    public PermissionInfo getParent() {
-        if(parent == null){
-            //parent = AuthConfig.permissions().get(this.uniqueId);
-        }
-        return parent;
     }
 
     public String getFailureUrl() {
@@ -179,14 +184,6 @@ public class PermissionInfo {
         this.isNode = isNode;
     }
 
-    public void setDependency(PermissionInfo dependency) {
-        this.dependency = dependency;
-    }
-
-    public void setParent(PermissionInfo parent) {
-        this.parent = parent;
-    }
-
     public void setMethodName(String methodName) {
         this.methodName = methodName;
     }
@@ -213,6 +210,46 @@ public class PermissionInfo {
 
     public void setUniqueId(String uniqueId) {
         this.uniqueId = uniqueId;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
+
+    public boolean isDisplay() {
+        return display;
+    }
+
+    public void setDisplay(boolean display) {
+        this.display = display;
+    }
+
+    public int getIdentity() {
+        return identity;
+    }
+
+    public void setIdentity(int identity) {
+        this.identity = identity;
+    }
+
+    public int getParentIdentity() {
+        return parentIdentity;
+    }
+
+    public void setParentIdentity(int parentId) {
+        this.parentIdentity = parentId;
+    }
+
+    public String getGroup() {
+        return group;
+    }
+
+    public void setGroup(String group) {
+        this.group = group;
     }
 
     @Override

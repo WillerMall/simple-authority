@@ -12,6 +12,7 @@ import java.util.Set;
  * AuthConfig
  * 权限信息配置类<p/>
  * 可以继承这个类自己实现配置
+ *
  * @author TuWei
  * @date 15/8/19
  */
@@ -20,17 +21,12 @@ public abstract class AuthManager {
     /**
      * 所有权限信息(分好组后的)
      */
-    protected List<PermissionInfo> permsInfo;
+    protected static List<PermissionInfo> permsInfo;
 
     /**
      * 所有权限信息(未分组)
      */
-    protected Map<String, PermissionInfo> allPermissions;
-
-    /**
-     * 需要扫描的资源所在的包
-     */
-    protected Set<String> packages;
+    protected static Map<String, PermissionInfo> allPermissions;
 
     /**
      * 需要排除掉的url
@@ -53,7 +49,7 @@ public abstract class AuthManager {
     protected Map<String, String> menu;
 
     /**
-     * 校验权限用的Helper, 需要自己实现
+     * 校验权限用的validator, 需要自己实现
      */
     protected AuthValidator validator;
 
@@ -64,11 +60,12 @@ public abstract class AuthManager {
 
     /**
      * 判断是不是包含某个需要排除的url
+     *
      * @param oUrl
      * @return
      */
-    public boolean isExcludeUrl(String oUrl){
-        if(Strings.isEmpty(oUrl)){
+    public boolean isExcludeUrl(String oUrl) {
+        if (Strings.isEmpty(oUrl)) {
             return false;
         }
         return excludeUrl.contains(oUrl);
@@ -78,12 +75,21 @@ public abstract class AuthManager {
      * 返回一个只读的所有权限map<br/>
      * key: 访问方法的唯一标识<br/>
      * value: 权限信息
+     *
      * @return 只读权限map
      */
-    public Map<String, PermissionInfo> permissions(){
+    public static Map<String, PermissionInfo> permissions() {
         return Collections.unmodifiableMap(allPermissions);
     }
 
+    /**
+     * 返回一个只读的分好组(根据Module分组)后的所有权限List<br/>
+     *
+     * @return 只读权限List
+     */
+    public static List<PermissionInfo> groupedPermission() {
+        return Collections.unmodifiableList(permsInfo);
+    }
 
     public AuthValidator getValidator() {
         return validator;
